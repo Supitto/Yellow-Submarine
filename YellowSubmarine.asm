@@ -1,7 +1,7 @@
 INCLUDE Irvine32.inc
 
-desenhasubmarino PROTO, xy:BYTE
-apagasubmarino PROTO, xy:BYTE
+desenhaSubmarino PROTO, xy:WORD
+apagaSubmarino PROTO, xy:WORD
 
 .data
 	char_mapa byte '*'
@@ -9,11 +9,15 @@ apagasubmarino PROTO, xy:BYTE
 .code
 main PROC
 	call desenhamapa
+	invoke desenhaSubmarino, 0000000100000001b
+	mov dl, 0
+	mov dh, 32
+	call Gotoxy
 	call waitMsg
 	exit
 main ENDP
 
-desenhamapa PROC
+desenhaMapa PROC
 .code
 	pushad
 	mov dl, 0						   ;// coluna inicial para desenhar a linha de cima do tabuleiro
@@ -71,9 +75,9 @@ L4:
 	popad
 	call crlf
 	ret
-desenhamapa ENDP
+desenhaMapa ENDP
 
-desenhasubmarino PROC, xy:BYTE
+desenhaSubmarino PROC, xy:WORD
 .code
 	pushad                             ;//Joga os registradores na pilha
 	mov al, 'S'                        ;//Guarda o S no al para ser desenhado
@@ -82,9 +86,9 @@ desenhasubmarino PROC, xy:BYTE
 	call WriteChar                     ;//Desenha o submarino
 	popad							   ;//Retorna os registradores da pilha
 	ret								   ;//Fim da função
-desenhasubmarino ENDP
+desenhaSubmarino ENDP
 
-apagasubmarino PROC, xy : BYTE
+apagaSubmarino PROC, xy : WORD
 .code
 	pushad                             ;//Joga os registradores na pilha
 	mov al, ' '                        ;//Guarda o S no al para ser desenhado
@@ -93,9 +97,6 @@ apagasubmarino PROC, xy : BYTE
 	call WriteChar                     ;//Desenha o submarino
 	popad							   ;//Retorna os registradores da pilha
 	ret								   ;//Fim da função
-apagasubmarino ENDP
-
-
-
+apagaSubmarino ENDP
 
 END main
