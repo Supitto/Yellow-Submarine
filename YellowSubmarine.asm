@@ -23,6 +23,17 @@ L:
 	mov dl, 0
 	mov dh, 32
 	call Gotoxy
+
+principal:
+	invoke apagaSubmarino, cx
+	call colisao
+	
+	invoke desenhaSubmarino, cx
+	mov eax, 500
+	call Delay
+	cmp esi,4
+	jl principal
+
 	call waitMsg
 	exit
 main ENDP
@@ -109,6 +120,7 @@ apagaSubmarino PROC, xy:WORD
 	ret								   ;//Fim da função
 apagaSubmarino ENDP
 
+
 readKeys PROC
 .code
 	cmp ax, 4B00h
@@ -148,5 +160,16 @@ Fim:
 	ret
 readKeys ENDP	
 
+colisao PROC
+.code
+	push cx
+	dec ch
+	dec cl
+	cmp ch,79
+	
+	cmp cl,79
+	
+	pop cx
+colisao ENDP
 
 END main
