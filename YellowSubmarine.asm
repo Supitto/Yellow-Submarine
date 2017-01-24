@@ -8,8 +8,18 @@ apagaSubmarino PROTO, xy:WORD
 
 .code
 main PROC
+	mov cx, 0000000100000001b
 	call desenhamapa
-	invoke desenhaSubmarino, 0000000100000001b
+	invoke desenhaSubmarino, cx
+L:
+	mov eax, 50
+	call Delay
+	call ReadKey
+	push eax
+	call ReadKeys
+	pop eax
+	jmp L
+
 	mov dl, 0
 	mov dh, 32
 	call Gotoxy
@@ -88,7 +98,7 @@ desenhaSubmarino PROC, xy:WORD
 	ret								   ;//Fim da função
 desenhaSubmarino ENDP
 
-apagaSubmarino PROC, xy : WORD
+apagaSubmarino PROC, xy:WORD
 .code
 	pushad                             ;//Joga os registradores na pilha
 	mov al, ' '                        ;//Guarda o S no al para ser desenhado
@@ -98,5 +108,45 @@ apagaSubmarino PROC, xy : WORD
 	popad							   ;//Retorna os registradores da pilha
 	ret								   ;//Fim da função
 apagaSubmarino ENDP
+
+readKeys PROC
+.code
+	cmp ax, 4B00h
+	je Esq
+
+	cmp ax, 4D00h
+	je Dir
+
+	cmp ax, 4800h
+	je Up
+
+	cmp ax, 5000h
+	je Baixo
+
+	jmp Fim
+
+Dir:
+	;//call andandoDir
+	invoke apagaSubmarino,cx
+	add cx, 1
+	invoke desenhaSubmarino,cx
+	jmp Fim
+
+Esq:
+	;//call andadoEsq
+	jmp Fim
+
+Up:
+	;//call andandoUp
+	jmp Fim
+
+Baixo:
+	;//call andandoBaixo
+	jmp Fim
+
+Fim:
+	ret
+readKeys ENDP	
+
 
 END main
