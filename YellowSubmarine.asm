@@ -9,10 +9,15 @@ apagaSubmarino PROTO, xy:WORD
 .code
 main PROC
 	call desenhamapa
-	invoke desenhaSubmarino, 0000000100000001b
-	mov dl, 0
-	mov dh, 32
-	call Gotoxy
+principal:
+	invoke apagaSubmarino, cx
+	call colisao
+	
+	invoke desenhaSubmarino, cx
+	mov eax, 500
+	call Delay
+	cmp esi,4
+	jl principal
 	call waitMsg
 	exit
 main ENDP
@@ -98,5 +103,17 @@ apagaSubmarino PROC, xy : WORD
 	popad							   ;//Retorna os registradores da pilha
 	ret								   ;//Fim da função
 apagaSubmarino ENDP
+
+colisao PROC
+.code
+	push cx
+	dec ch
+	dec cl
+	cmp ch,79
+	
+	cmp cl,79
+	
+	pop cx
+colisao ENDP
 
 END main
