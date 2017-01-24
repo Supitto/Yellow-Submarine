@@ -22,7 +22,7 @@ desenhaMapa PROC
 	pushad
 	mov dl, 0						   ;// coluna inicial para desenhar a linha de cima do tabuleiro
 	mov dh, 0						   ;// linha inicial para desenhar a linha de cima do tabuleiro
-	mov ecx, 30						   ;// numero de linhas
+	mov ecx, 80						   ;// numero de linhas
 
 									   ;// desenha linha de cima 
 L:
@@ -48,7 +48,7 @@ L2:
 	loop L2
 
 			                           ;// desenha a coluna mais � esquerda
-	mov dl, 30						   ;// posicao da ultima * da linha de cima
+	mov dl, 79  					   ;// posicao da ultima * da linha de cima
 	mov dh, 0
 	mov ecx, 30
 L3:
@@ -62,7 +62,7 @@ L3:
 
 	mov dl, 1                          ;// desenha linha de baixo
 	mov dh, 30
-	mov ecx, 30		
+	mov ecx, 79	
 L4:								
 	call Gotoxy
 	push edx
