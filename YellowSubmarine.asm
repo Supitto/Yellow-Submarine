@@ -26,21 +26,11 @@ L:
 	cmp ebx, 0
 	je fim
 	jmp L
+	
+fim:
 	mov dl, 0
 	mov dh, 32
 	call Gotoxy
-
-principal:
-	invoke apagaSubmarino, cx
-	call colisao
-	
-	invoke desenhaSubmarino, cx
-	mov eax, 500
-	call Delay
-	cmp esi,4
-	jl principal
-fim:
-
 	call waitMsg
 	exit
 main ENDP
@@ -145,22 +135,18 @@ leTecla PROC
 	jmp Fim
 
 Dir:
-	;//call andandoDir
 	add cl, 1
 	jmp Fim
 
 Esq:
-	;//call andadoEsq
 	sub cl, 1
 	jmp Fim
 
 Up:
-	;//call andandoUp
 	sub ch, 1
 	jmp Fim
 
 Baixo:
-	;//call andandoBaixo
 	add ch, 1
 	jmp Fim
 
@@ -222,7 +208,7 @@ desenhaVetorObstaculos PROC
 desenha:
 	mov dx, [ebx + esi]
 	call GoToXY
-	mov al, '^'
+	mov al, '+'
 	call WriteChar
 	add esi, 4
 	loop desenha
