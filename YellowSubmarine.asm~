@@ -8,18 +8,20 @@ apagaSubmarino PROTO, xy:WORD
 
 .code
 main PROC
+	call Clrscr
 	mov cx, 0000000100000001b
 	call desenhamapa
-	invoke desenhaSubmarino, cx
 L:
+	invoke apagaSubmarino, cx
+	call ReadKey
+	call ReadKeys
+	invoke desenhaSubmarino, cx
 	mov eax, 50
 	call Delay
-	call ReadKey
-	push eax
-	call ReadKeys
-	pop eax
+	call colisao
+	cmp ebx, 0
+	je fim
 	jmp L
-
 	mov dl, 0
 	mov dh, 32
 	call Gotoxy
@@ -33,6 +35,7 @@ principal:
 	call Delay
 	cmp esi,4
 	jl principal
+fim:
 
 	call waitMsg
 	exit
@@ -139,21 +142,22 @@ readKeys PROC
 
 Dir:
 	;//call andandoDir
-	invoke apagaSubmarino,cx
-	add cx, 1
-	invoke desenhaSubmarino,cx
+	add cl, 1
 	jmp Fim
 
 Esq:
 	;//call andadoEsq
+	sub cl, 1
 	jmp Fim
 
 Up:
 	;//call andandoUp
+	sub ch, 1
 	jmp Fim
 
 Baixo:
 	;//call andandoBaixo
+	add ch, 1
 	jmp Fim
 
 Fim:
@@ -163,13 +167,17 @@ readKeys ENDP
 colisao PROC
 .code
 	push cx
-	dec ch
-	dec cl
-	cmp ch,79
-	
-	cmp cl,79
-	
+	sub ch, 2
+	sub cl, 2
+	cmp ch,78
+	jle fim
+	cmp cl,30
+	jle fim
+	mov ebx, 0	
+fim:	
 	pop cx
 colisao ENDP
 
 END main
+
+
