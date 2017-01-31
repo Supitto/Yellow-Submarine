@@ -4,7 +4,7 @@ desenhaSubmarino PROTO, xy:WORD
 apagaSubmarino PROTO, xy:WORD
 
 .data
-	char_mapa BYTE '*'
+	char_mapa BYTE '#'
 	vetorDeObstaculos WORD 200 DUP(?)
 
 .code
@@ -171,9 +171,20 @@ leTecla ENDP
 colisao PROC
 .code
 	push ecx
-	.if ch >0 && ch < 30 && cl >0 && cl < 79 
-		jmp fim
+	.if ch <=0 || ch >= 30 || cl <=0 || cl >= 79 
+		jmp deuRuim
 	.endif
+	mov bx, cx
+	mov ecx, 200
+	mov esi, OFFSET vetorDeObstaculos
+L:
+	.IF bx == [esi] 
+		jmp deuRuim
+	.endif
+	add esi, 4
+	loop L
+	jmp fim
+deuRuim: 
 	mov ebx, 0	
 fim:	
 	pop ecx
