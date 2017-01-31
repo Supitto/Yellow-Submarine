@@ -9,13 +9,13 @@ apagaSubmarino PROTO, xy:WORD
 .code
 main PROC
 	mov ecx, 0
-	call Clrscr
-	mov cx, 0000000100000001b
+	call Clrscr						   ;// limpa a tela para inicial o jogo 
+	mov cx, 0000000100000001b		   ;// posicao inicial do Submarino com x = 1 e y = 1
 	call desenhamapa
 L:
 	invoke apagaSubmarino, cx
 	call ReadKey
-	call ReadKeys
+	call leTecla
 	invoke desenhaSubmarino, cx
 	mov eax, 50
 	call Delay
@@ -51,7 +51,7 @@ desenhaMapa PROC
 
 									   ;// desenha linha de cima 
 L:
-	call Gotoxy						   ;// vai apra a posi��o dh, dl
+	call Gotoxy						   ;// vai apra a posicao dh, dl
 	push edx						   ;// manda para a pilha o valor de dl e dh
 	mov edx, OFFSET char_mapa		   ;// prepara para desenhar *
 	call WriteString                   ;// escreve *
@@ -125,7 +125,7 @@ apagaSubmarino PROC, xy:WORD
 apagaSubmarino ENDP
 
 
-readKeys PROC
+leTecla PROC
 .code
 	cmp ax, 4B00h
 	je Esq
@@ -163,7 +163,7 @@ Baixo:
 
 Fim:
 	ret
-readKeys ENDP	
+leTecla ENDP	
 
 colisao PROC
 .code
