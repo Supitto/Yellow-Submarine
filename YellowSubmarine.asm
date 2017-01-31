@@ -171,6 +171,17 @@ colisao PROC
 	.if ch >0 && ch < 29 && cl >0 && cl < 79 
 		jmp fim
 	.endif
+	push ecx
+	mov ebx, ecx
+	mov ecx, 200
+	mov esi, OFFSET vetorDeObstaculos
+L1:
+	.if bx == [esi]
+		jmp deuRuim
+	.endif
+	inc esi
+	loop L1
+deuRuim:
 	mov ebx, 0	
 fim:	
 	pop ecx
