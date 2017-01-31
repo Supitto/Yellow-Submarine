@@ -15,7 +15,7 @@ L:
 	call ReadKey
 	call ReadKeys
 	invoke desenhaSubmarino, cx
-	mov eax, 500
+	mov eax, 50
 	call Delay
 	jmp L
 
