@@ -4,7 +4,8 @@ desenhaSubmarino PROTO, xy:WORD
 apagaSubmarino PROTO, xy:WORD
 
 .data
-	char_mapa byte '*'
+	char_mapa BYTE '*'
+	vetorDeObstaculos WORD 200 DUP(?)
 
 .code
 main PROC
@@ -12,6 +13,8 @@ main PROC
 	call Clrscr						   ;// limpa a tela para inicial o jogo 
 	mov cx, 0000000100000001b		   ;// posicao inicial do Submarino com x = 1 e y = 1
 	call desenhamapa
+	call preencheVetor
+	call desenhaVetorObstaculos
 L:
 	invoke apagaSubmarino, cx
 	call ReadKey
@@ -168,25 +171,53 @@ leTecla ENDP
 colisao PROC
 .code
 	push ecx
-	.if ch >0 && ch < 29 && cl >0 && cl < 79 
+	.if ch >0 && ch < 30 && cl >0 && cl < 79 
 		jmp fim
 	.endif
-	push ecx
-	mov ebx, ecx
-	mov ecx, 200
-	mov esi, OFFSET vetorDeObstaculos
-L1:
-	.if bx == [esi]
-		jmp deuRuim
-	.endif
-	inc esi
-	loop L1
-deuRuim:
 	mov ebx, 0	
 fim:	
 	pop ecx
 	ret
 colisao ENDP
+
+preencheVetor PROC
+.code 
+	pushad
+	mov eax, 0 ;// seta eax como 0
+	mov ecx, 200
+	mov esi, OFFSET vetorDeObstaculos
+EncheVetor:
+	mov eax, 29
+	call RandomRange
+	inc eax
+	mov bh, al
+	mov eax, 78
+	call RandomRange
+	inc eax
+	mov bl, al
+	mov [esi], bx
+	add esi, 4
+	loop EncheVetor
+	popad
+ret
+preencheVetor ENDP
+
+desenhaVetorObstaculos PROC
+.code 
+	pushad
+	mov ecx, 200
+	mov esi, 0
+	mov ebx, OFFSET vetorDeObstaculos
+desenha:
+	mov dx, [ebx + esi]
+	call GoToXY
+	mov al, '^'
+	call WriteChar
+	add esi, 4
+	loop desenha
+	popad
+ret
+desenhaVetorObstaculos ENDP
 
 END main
 
