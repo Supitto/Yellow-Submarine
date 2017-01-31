@@ -4,9 +4,11 @@ desenhaSubmarino PROTO, xy:WORD
 apagaSubmarino PROTO, xy:WORD
 
 .data
+	NUMERO_DE_OBSTACULOS = 100
 	char_mapa BYTE '#'
-	vetorDeObstaculos WORD 200 DUP(?)
-
+	vetorDeObstaculos WORD NUMERO_DE_OBSTACULOS DUP(?)
+	vetorDeBeatles WORD 4 DUP(?)
+	
 .code
 main PROC
 	mov ecx, 0
@@ -15,6 +17,8 @@ main PROC
 	mov cx, 0000000100000001b		   ;// posicao inicial do Submarino com x = 1 e y = 1
 	call desenhamapa
 	call preencheVetor
+	call preencheVetorBeatles
+	call desenhaVetorBeatles
 	call desenhaVetorObstaculos
 	push esi
 L:
@@ -38,8 +42,9 @@ L:
 		add ch, 1
 	.ENDIF
 	push esi
+
 	invoke desenhaSubmarino, cx
-	mov eax, 125
+	mov eax, 200
 	call Delay
 	call colisao
 	cmp ebx, 0
@@ -164,7 +169,7 @@ colisao PROC
 		jmp deuRuim
 	.endif
 	mov bx, cx
-	mov ecx, 200
+	mov ecx, NUMERO_DE_OBSTACULOS
 	mov esi, OFFSET vetorDeObstaculos
 L:
 	.IF bx == [esi] 
@@ -184,7 +189,7 @@ preencheVetor PROC
 .code 
 	pushad
 	mov eax, 0 ;// seta eax como 0
-	mov ecx, 200
+	mov ecx, NUMERO_DE_OBSTACULOS
 	mov esi, OFFSET vetorDeObstaculos
 EncheVetor:
 	mov eax, 29
@@ -205,7 +210,7 @@ preencheVetor ENDP
 desenhaVetorObstaculos PROC
 .code 
 	pushad
-	mov ecx, 200
+	mov ecx, NUMERO_DE_OBSTACULOS
 	mov esi, 0
 	mov ebx, OFFSET vetorDeObstaculos
 desenha:
@@ -218,6 +223,71 @@ desenha:
 	popad
 ret
 desenhaVetorObstaculos ENDP
+
+preencheVetorBeatles PROC
+.code
+	pushad
+	mov eax, 0 
+	mov ecx, 4
+	mov esi, OFFSET vetorDeBeatles
+EncheVetor:
+	mov eax, 29
+	call RandomRange
+	inc eax
+	mov bh, al
+	mov eax, 78
+	call RandomRange
+	inc eax
+	mov bl, al
+	
+	push ecx
+	push esi
+	push eax
+VoltaTudo:	
+	mov ecx, NUMERO_DE_OBSTACULOS
+	mov esi, OFFSET vetorDeObstaculos
+ComparaComObstaculos:
+	.IF bx == [esi]
+		mov eax, 29
+		call RandomRange
+		inc eax
+		mov bh, al
+		mov eax, 78
+		call RandomRange
+		inc eax
+		mov bl, al
+		jmp VoltaTudo
+	.ELSE
+		add esi, 4
+	.ENDIF
+	loop ComparaComObstaculos
+	pop ecx
+	pop esi
+	pop eax
+
+	mov [esi], bx
+	add esi, 4
+	loop EncheVetor
+	popad
+	ret								   
+preencheVetorBeatles ENDP
+
+desenhaVetorBeatles PROC
+.code 
+	pushad
+	mov ecx, 4
+	mov esi, 0
+	mov ebx, OFFSET vetorDeBeatles
+desenha:
+	mov dx, [ebx + esi]
+	call GoToXY
+	mov al, 'B'
+	call WriteChar
+	add esi, 4
+	loop desenha
+	popad
+ret
+desenhaVetorBeatles ENDP
 
 END main
 
