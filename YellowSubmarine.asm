@@ -10,17 +10,36 @@ apagaSubmarino PROTO, xy:WORD
 .code
 main PROC
 	mov ecx, 0
+	mov esi, 0
 	call Clrscr						   ;// limpa a tela para inicial o jogo 
 	mov cx, 0000000100000001b		   ;// posicao inicial do Submarino com x = 1 e y = 1
 	call desenhamapa
 	call preencheVetor
 	call desenhaVetorObstaculos
+	push esi
 L:
 	invoke apagaSubmarino, cx
 	call ReadKey
+	pop esi
 	call leTecla
+	.IF esi == 1
+		sub cl, 1
+	.ENDIF
+
+	.IF esi == 2
+		add cl, 1
+	.ENDIF
+
+	.IF esi == 3
+		sub ch, 1
+	.ENDIF
+
+	.IF esi == 4
+		add ch, 1
+	.ENDIF
+	push esi
 	invoke desenhaSubmarino, cx
-	mov eax, 50
+	mov eax, 125
 	call Delay
 	call colisao
 	cmp ebx, 0
@@ -120,38 +139,22 @@ apagaSubmarino ENDP
 
 leTecla PROC
 .code
-	cmp ax, 4B00h
-	je Esq
+	.IF ax == 4B00h
+		mov esi, 1
+	.ENDIF
 
-	cmp ax, 4D00h
-	je Dir
+	.IF ax == 4D00h
+		mov esi, 2
+	.ENDIF
 
-	cmp ax, 4800h
-	je Up
+	.IF ax == 4800h
+		mov esi, 3
+	.ENDIF
 
-	cmp ax, 5000h
-	je Baixo
-
-	jmp Fim
-
-Dir:
-	add cl, 1
-	jmp Fim
-
-Esq:
-	sub cl, 1
-	jmp Fim
-
-Up:
-	sub ch, 1
-	jmp Fim
-
-Baixo:
-	add ch, 1
-	jmp Fim
-
-Fim:
-	ret
+	.IF ax == 5000h
+		mov esi, 4
+	.ENDIF
+ret
 leTecla ENDP	
 
 colisao PROC
