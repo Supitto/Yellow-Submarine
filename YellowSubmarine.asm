@@ -175,7 +175,7 @@ L:
 	.IF bx == [esi] 
 		jmp deuRuim
 	.endif
-	add esi, 4
+	add esi, 2
 	loop L
 	jmp fim
 deuRuim: 
@@ -201,7 +201,7 @@ EncheVetor:
 	inc eax
 	mov bl, al
 	mov [esi], bx
-	add esi, 4
+	add esi, 2
 	loop EncheVetor
 	popad
 ret
@@ -218,7 +218,7 @@ desenha:
 	call GoToXY
 	mov al, '+'
 	call WriteChar
-	add esi, 4
+	add esi, 2
 	loop desenha
 	popad
 ret
@@ -241,13 +241,12 @@ EncheVetor:
 	mov bl, al
 	
 	push ecx
-	push esi
-	push eax
 VoltaTudo:	
 	mov ecx, NUMERO_DE_OBSTACULOS
-	mov esi, OFFSET vetorDeObstaculos
+	mov edx, OFFSET vetorDeObstaculos
+	mov eax, ecx
 ComparaComObstaculos:
-	.IF bx == [esi]
+	.IF bx == [edx]
 		mov eax, 29
 		call RandomRange
 		inc eax
@@ -258,15 +257,12 @@ ComparaComObstaculos:
 		mov bl, al
 		jmp VoltaTudo
 	.ELSE
-		add esi, 4
+		add edx, 2
 	.ENDIF
 	loop ComparaComObstaculos
 	pop ecx
-	pop esi
-	pop eax
-
 	mov [esi], bx
-	add esi, 4
+	add esi, 2
 	loop EncheVetor
 	popad
 	ret								   
@@ -283,7 +279,7 @@ desenha:
 	call GoToXY
 	mov al, 'B'
 	call WriteChar
-	add esi, 4
+	add esi, 2
 	loop desenha
 	popad
 ret
