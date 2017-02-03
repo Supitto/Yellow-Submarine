@@ -4,7 +4,8 @@ desenhaSubmarino PROTO, xy:WORD
 apagaSubmarino PROTO, xy:WORD
 
 .data
-	NUMERO_DE_OBSTACULOS = 100
+	NUMERO_DE_OBSTACULOS = 200
+	BEATLES_RESGATADOS WORD ?
 	char_mapa BYTE '#'
 	vetorDeObstaculos WORD NUMERO_DE_OBSTACULOS DUP(?)
 	vetorDeBeatles WORD 4 DUP(?)
@@ -13,13 +14,14 @@ apagaSubmarino PROTO, xy:WORD
 main PROC
 	mov ecx, 0
 	mov esi, 0
+	mov BEATLES_RESGATADOS, 0
 	call Clrscr						   ;// limpa a tela para inicial o jogo 
 	mov cx, 0000000100000001b		   ;// posicao inicial do Submarino com x = 1 e y = 1
 	call desenhamapa
 	call preencheVetor
+	call desenhaVetorObstaculos
 	call preencheVetorBeatles
 	call desenhaVetorBeatles
-	call desenhaVetorObstaculos
 	push esi
 L:
 	invoke apagaSubmarino, cx
@@ -55,6 +57,8 @@ fim:
 	mov dl, 0
 	mov dh, 32
 	call Gotoxy
+	mov eax, white + (16*black)
+	call SetTextColor
 	call waitMsg
 	exit
 main ENDP
@@ -122,9 +126,13 @@ desenhaMapa ENDP
 desenhaSubmarino PROC, xy:WORD
 .code
 	pushad                             ;//Joga os registradores na pilha
-	mov al, 'S'                        ;//Guarda o S no al para ser desenhado
+	mov al, 244                        ;//Guarda o S no al para ser desenhado
 	mov dx, xy                         ;//Move o x para dh e o y par dl
 	call Gotoxy						   ;//Move o cursor
+	push eax						   ;// Coloca eax na pilha
+	mov eax, yellow+(16*black)		   ;// Seta amarelo como Cor do Submarino
+	call setTextColor
+	pop eax							   ;// Tira eax da Pilha
 	call WriteChar                     ;//Desenha o submarino
 	popad							   ;//Retorna os registradores da pilha
 	ret								   ;//Fim da função
@@ -177,7 +185,22 @@ L:
 	.endif
 	add esi, 2
 	loop L
+	
+	mov ecx, 4
+	mov esi, OFFSET vetorDeBeatles
+
+L2:
+	.IF bx == [esi]
+		add BEATLES_RESGATADOS, 1
+	.ENDIF
+
+	.IF BEATLES_RESGATADOS == 4
+		jmp deuRuim
+	.ENDIF
+	add esi, 2
+	loop L2
 	jmp fim
+
 deuRuim: 
 	mov ebx, 0	
 fim:	
@@ -217,6 +240,10 @@ desenha:
 	mov dx, [ebx + esi]
 	call GoToXY
 	mov al, '+'
+	push eax
+	mov eax, gray+(black * 16)
+	call SetTextColor
+	pop eax
 	call WriteChar
 	add esi, 2
 	loop desenha
@@ -277,7 +304,34 @@ desenhaVetorBeatles PROC
 desenha:
 	mov dx, [ebx + esi]
 	call GoToXY
-	mov al, 'B'
+	mov al, 01
+	.IF esi == 0
+		push eax
+		mov eax, lightMagenta+(black * 16)
+		call SetTextColor
+		pop eax
+	.ENDIF
+
+	.IF esi == 2
+		push eax
+		mov eax, lightGreen+(black * 16)
+		call SetTextColor
+		pop eax
+	.ENDIF
+
+	.IF esi == 4
+		push eax
+		mov eax, white+(black * 16)
+		call SetTextColor
+		pop eax
+	.ENDIF
+
+	.IF esi == 6
+		push eax
+		mov eax, lightRed+(black * 16)
+		call SetTextColor
+		pop eax
+	.ENDIF
 	call WriteChar
 	add esi, 2
 	loop desenha
