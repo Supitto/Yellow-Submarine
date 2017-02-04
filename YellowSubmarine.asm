@@ -36,7 +36,7 @@ apagaSubmarino PROTO, xy:WORD
 	bocaRingo BYTE   "   ~  ",0Dh,0Ah,0
 	nomeRingo BYTE   "Ringo ",0Dh,0Ah,0
 
-	dificuldade BYTE "Qual nivel de dificuldade vc deseja para o jogo? ", 0 ;// string que pergunta dificuldade do jogo
+	dificuldade BYTE "Qual nivel de dificuldade vc deseja para o jogo [0, 1, 2, 3 ou 4]? ", 0 ;// string que pergunta dificuldade do jogo
 
 	
 .code
