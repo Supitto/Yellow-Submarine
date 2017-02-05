@@ -96,7 +96,7 @@ main PROC
 Inicio:
 	mov eax, white+(black*16)
 	call SetTextColor
-	mov ebx, 0 				;//incializa registradores
+	mov ebx, 0 
 	mov ecx, 0
 	mov esi, 0
 	mov eax, 0
@@ -107,11 +107,11 @@ Inicio:
 	call desenhaIni
 	call Clrscr
 	.if ebx == 0
-		jmp fim				;//codicao de saida
+		jmp fim
 	.endif
 	.if ebx == 1
 		call ajuda
-		jmp Inicio			;//condicao de sai
+		jmp Inicio
 	.endif
 	mov cx, 0000000100000001b		   ;// posicao inicial do Submarino com x = 1 e y = 1
 	push ebx
@@ -124,7 +124,7 @@ Inicio:
 	call desenhaVetorObstaculos
 	;pop ebx
 	push esi
-L:					;//checa condicoes
+L:
 	
 	.if ebx == 0
 		jmp fim
@@ -142,8 +142,8 @@ L:					;//checa condicoes
 	invoke apagaSubmarino, cx
 	call ReadKey
 	pop esi
-	call leTecla			;//le o movimento
-	.IF esi == 1			;//move o submarino
+	call leTecla
+	.IF esi == 1
 		sub cl, 1
 	.ENDIF
 
@@ -167,7 +167,7 @@ L:					;//checa condicoes
 	jmp L
 	
 fim:
-	mov eax, white + (16*black)	;//encerra o programa
+	mov eax, white + (16*black)
 	call SetTextColor
 	exit
 main ENDP
@@ -253,9 +253,9 @@ apagaSubmarino ENDP
 
 
 leTecla PROC
-.code					;//Le a tecla e guarda o codigo de moviemnto
+.code
 	.IF ax == 4B00h
-		mov esi, 1	
+		mov esi, 1
 	.ENDIF
 
 	.IF ax == 4D00h
@@ -276,7 +276,7 @@ colisao PROC
 .code
 	
 	push ecx
-	.if ch <=0 || ch >= 30 || cl <=0 || cl >= 79 ;//Se saiu das bordas
+	.if ch <=0 || ch >= 30 || cl <=0 || cl >= 79 
 		jmp deuRuim
 	.endif
 
@@ -284,13 +284,13 @@ colisao PROC
 	mov ecx, NUMERO_DE_OBSTACULOS
 	mov esi, OFFSET vetorDeObstaculos
 L:
-	.IF bx == [esi] ;//Se a posicao bater com um obstaculo
+	.IF bx == [esi] 
 		jmp deuRuim
 	.endif
 	add esi, 2
 	loop L
 	
-	mov esi, OFFSET vetorDeBeatles		;//Se a posicao bater com um beatle
+	mov esi, OFFSET vetorDeBeatles
 	mov eax, 0
 	.IF bx == [esi]
 		mov [esi], ax
@@ -320,24 +320,24 @@ L:
 		jmp fim
 	.ENDIF
 
-	.IF BEATLES_RESGATADOS == 4	;// se ja colidiu com 4 beatles
+	.IF BEATLES_RESGATADOS == 4
 		jmp ganhoumiseravi
 	.endif
 	jmp fim
 
 ganhouMiseravi:
-	mov ebx, 2			;// condicao de vitoria
+	mov ebx, 2
 	jmp fim
 
 deuRuim: 
-	mov ebx, 3			;// condicao de derrota
+	mov ebx, 3	
 fim:	
 	pop ecx
 	ret
 colisao ENDP
 
 preencheVetor PROC
-.code 					;//gera vetpr de obstaculos
+.code 
 	pushad
 	mov eax, 0 ;// seta eax como 0
 	mov ecx, NUMERO_DE_OBSTACULOS
@@ -362,7 +362,7 @@ ret
 preencheVetor ENDP
 
 desenhaVetorObstaculos PROC
-.code 						;//Desenha vetor de obstauculos
+.code 
 	pushad
 	mov ecx, NUMERO_DE_OBSTACULOS
 	mov esi, 0
@@ -387,7 +387,7 @@ preencheVetorBeatles PROC
 	pushad
 	mov eax, 0 
 	mov ecx, 4
-	mov esi, OFFSET vetorDeBeatles	;//Aponta para o vetor
+	mov esi, OFFSET vetorDeBeatles
 EncheVetor:
 	mov eax, 29
 	call RandomRange
@@ -404,7 +404,7 @@ VoltaTudo:
 	mov edx, OFFSET vetorDeObstaculos
 	mov eax, ecx
 ComparaComObstaculos:
-	.IF bx == [edx]	//caso um beatle seja igual a um obstaculo ele deve ser regerado
+	.IF bx == [edx]
 		mov eax, 29
 		call RandomRange
 		inc eax
@@ -426,7 +426,7 @@ ComparaComObstaculos:
 	ret								   
 preencheVetorBeatles ENDP
 
-desenhaVetorBeatles PROC			;//Desenha os personagens no mapa
+desenhaVetorBeatles PROC
 .code 
 	pushad
 	mov ebx, OFFSET vetorDeBeatles
@@ -463,7 +463,7 @@ desenhaVetorBeatles PROC			;//Desenha os personagens no mapa
 ret
 desenhaVetorBeatles ENDP
 
-desenhaPaul PROC			;//Desenha Paul linha a linha
+desenhaPaul PROC
 .code
 	pushad
 	call Gotoxy
@@ -498,7 +498,7 @@ desenhaPaul PROC			;//Desenha Paul linha a linha
 ret
 desenhaPaul ENDP
 
-desenhaJohn PROC			;//Desenha John linha a linha
+desenhaJohn PROC
 .code
 	pushad
 	mov eax, white+(16 * lightGreen)
@@ -534,7 +534,7 @@ ret
 desenhaJohn ENDP
 
 desenhaGeorge PROC
-.code					;//Desenha George linha a linha
+.code
 	pushad
 	mov eax, white+(16 * lightRed)
 	call SetTextColor
@@ -568,7 +568,7 @@ ret
 desenhaGeorge ENDP
 
 desenhaRingo PROC
-.code						;//Desenha o ringo linha a linha
+.code
 	pushad
 	mov eax, white+(16 * lightMagenta)
 	call SetTextColor
@@ -603,7 +603,7 @@ desenhaRingo ENDP
 
 desenhaIni PROC
 .code
-	push edx			;//Desenha tela inicial linha a linha
+	push edx
 	push eax	
 	mov edx, OFFSET topo
 	call WriteString
@@ -670,7 +670,7 @@ desenhaIni PROC
 	mov edx, OFFSET linha24
 	call WriteString
 L:
-	call ReadInt			;//Espera em loop ate reconhecer uma entrada valida
+	call ReadInt
 	.if ax == 1
 		mov ebx, 4
 		jmp fim
@@ -693,7 +693,7 @@ desenhaIni ENDP
 derrota PROC
 .code
 	push edx
-	mov edx, OFFSET topo		;//Desenha a tela de derrota linha a linha
+	mov edx, OFFSET topo
 	call WriteString
 	mov edx, OFFSET linha_branca
 	call WriteString
@@ -745,14 +745,14 @@ derrota PROC
 	mov edx, OFFSET topo
 	call WriteString
 	push eax
-	mov eax, 2000			;//Espera 2000 milisegundos e volta para o menu principal
+	mov eax, 2000
 	call Delay
 	pop eax
 	pop edx
 	ret
 derrota ENDP
 
-vitoria PROC				;//Desenha tela de vitoria linha a linha
+vitoria PROC
 	push edx
 	mov edx, OFFSET topo
 	call WriteString
@@ -804,13 +804,13 @@ vitoria PROC				;//Desenha tela de vitoria linha a linha
 	call WriteString
 	pop edx
 	push eax
-	mov eax, 2000				;//espera 2000 milisegundos e volta para o menu principal
+	mov eax, 2000
 	call Delay
 	pop eax
 	ret
 vitoria ENDP
 
-ajuda PROC			;//Desenha tela de ajuda linha a linha
+ajuda PROC
 	push edx
 	mov edx, OFFSET topo
 	call WriteString
@@ -852,7 +852,7 @@ ajuda PROC			;//Desenha tela de ajuda linha a linha
 	call WriteString
 	pop edx
 	push eax
-	mov eax, 5000				;//espera 5000 milisegundos e volta para o menu principal
+	mov eax, 5000
 	call Delay
 	pop eax
 	ret
