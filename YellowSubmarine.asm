@@ -36,7 +36,6 @@ apagaSubmarino PROTO, xy:WORD
 	linha23 byte "#                                                   +--------------------+     #",0
 	NUMERO_DE_OBSTACULOS = 100
 	BEATLES_RESGATADOS WORD ?
-	char_mapa BYTE '#'
 	vetorDeObstaculos WORD NUMERO_DE_OBSTACULOS DUP(?)
 	vetorDeBeatles WORD 4 DUP(?)
 	perdeu1 byte "#                  _|      _|    _|_|      _|_|_|    _|_|                      #",0
@@ -91,7 +90,6 @@ apagaSubmarino PROTO, xy:WORD
 	bocaRingo BYTE   "   ~  ",0
 	nomeRingo BYTE   "Ringo ",0
 
-	
 .code
 main PROC
 Inicio:
@@ -115,7 +113,7 @@ Inicio:
 		jmp Inicio
 	.endif
 	mov cx, 0000000100000001b		   ;// posicao inicial do Submarino com x = 1 e y = 1
-	;push ebx
+	push ebx
 	call desenhamapa
 	call Randomize
 	call preencheVetor
@@ -280,6 +278,7 @@ colisao PROC
 	.if ch <=0 || ch >= 30 || cl <=0 || cl >= 79 
 		jmp deuRuim
 	.endif
+
 	mov bx, cx
 	mov ecx, NUMERO_DE_OBSTACULOS
 	mov esi, OFFSET vetorDeObstaculos
@@ -295,7 +294,7 @@ L:
 	.IF bx == [esi]
 		mov [esi], ax
 		add BEATLES_RESGATADOS, 1
-		call desenhaPaul
+		call desenhaRingo
 		jmp fim
 	.ENDIF
 
@@ -309,14 +308,14 @@ L:
 	.IF bx == [esi + 4]
 		mov [esi + 4], ax
 		add BEATLES_RESGATADOS, 1
-		call desenhaGeorge
+		call desenhaPaul
 		jmp fim
 	.ENDIF
 
 	.IF bx == [esi+6]
 		mov [esi+6], ax 
 		add BEATLES_RESGATADOS, 1
-		call desenhaRingo
+		call desenhaGeorge
 		jmp fim
 	.ENDIF
 
@@ -326,9 +325,9 @@ L:
 	jmp fim
 
 ganhouMiseravi:
-
 	mov ebx, 2
 	jmp fim
+
 deuRuim: 
 	mov ebx, 3	
 fim:	
@@ -602,9 +601,6 @@ ret
 desenhaRingo ENDP
 
 desenhaIni PROC
-
-
-
 .code
 	push edx
 	push eax	
