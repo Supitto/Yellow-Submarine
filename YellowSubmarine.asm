@@ -28,12 +28,13 @@ apagaSubmarino PROTO, xy:WORD
 	linha15 byte "# MM $$$$$$$$$$$$cc:::::::::$$'|'MMMMMMMMMMMMMMMMMMP==============??''''''=:::.#",0
 	linha16 byte "# MM $$$$$$$$$$$$$$c;;;;;;;c$$ | 'MMMMMMMMMMMMMMM' _,--------------````,hcccc$ #",0
 	linha17 byte "# PP $$$$$$$$$$$$$$$$$$$$$$$$P'.::::::::::::::::::' +--------------------+$$P' #",0
-	linha18 byte "# ==?$$?????$$$$$$$$$$$$$$$'.:'`.,c' '$' '$' '$'    | Pressione :        |$'   #",0
+	linha18 byte "# ==?$$?????$$$$$$$$$$$$$$$'.:'`.,c' '$' '$' '$'    | Digite e de Enter: |$'   #",0
 	linha19 byte "#         ,,_)$$$$$$$$$$$$F.:'.d$$$, ,$, ,$, ,$, ,$$|                    |'    #",0
 	linha20 byte "#         T''_?$$$$$$$$$$$':: $$$$$$$$$$$$$$$$$$$$$$| 1 - Para jogar     |     #",0
 	linha21 byte "#         `''      `'`       d$$$$$$$$$$$F''''''''''| 2 - Se quer ajuda  |     #",0
 	linha22 byte "#                                `''''''' ``````````| 3 - Para sair      |     #",0
 	linha23 byte "#                                                   +--------------------+     #",0
+	linha24 byte "Comando: ",0
 	NUMERO_DE_OBSTACULOS = 100
 	BEATLES_RESGATADOS WORD ?
 	vetorDeObstaculos WORD NUMERO_DE_OBSTACULOS DUP(?)
@@ -666,17 +667,19 @@ desenhaIni PROC
 	call WriteString
 	mov edx, OFFSET topo
 	call WriteString
+	mov edx, OFFSET linha24
+	call WriteString
 L:
-	call ReadKey
-	.if ax == 561 
+	call ReadInt
+	.if ax == 1
 		mov ebx, 4
 		jmp fim
 	.endif	
-	.if ax == 818
+	.if ax == 2
 		mov ebx, 1
 		jmp fim
 	.endif
-	.if ax == 1075
+	.if ax == 3
 		mov ebx, 0
 		jmp fim
 	.endif
