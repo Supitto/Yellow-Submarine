@@ -1,0 +1,20 @@
+TO DO:
+1) Tela inicial. Pensei na tela incial ter já o tutorial já que a dinamica do jogo é simples, mais ou menos como abaixo:
+
+Nome do Jogo
+
+
+
+Imagem em ASCII				Texto de turial:
+					Objetivo em resgatar os beatles e
+					comandos RIGHT, LEFT, DOWN, UP
+
+
+
+Digite a dificuldade 1,2,3,4 ou 5 para inciar:
+
+
+2) Tela de vitória
+
+3) Tela de derrota
+					
