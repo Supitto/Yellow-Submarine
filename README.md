@@ -1,4 +1,4 @@
 ## Yellow Submarine
 
 
-Em desenvolvimento ;)
+Quer ajudar no jogo, escreva um readme para ele
