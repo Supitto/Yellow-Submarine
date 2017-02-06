@@ -1,13 +1,19 @@
 INCLUDE Irvine32.inc
 
+;// prototipos das funcoes que passam parametros
 desenhaSubmarino PROTO, xy:WORD
 apagaSubmarino PROTO, xy:WORD
 
-.data
+;// todas as strings, variaveis e interface grafica do jogo
+.data 
 	ajuda1 byte "#         Ajuda :                                                              #",0
 	ajuda2 byte "#                Utilize as setas do teclado para mover o submarino            #",0
 	ajuda3 byte "#                Se voce tocar na borda (#) ou em um obstaculo (+) voce morre  #",0
 	ajuda4 byte "#                Se voce resgatar os 4 Beatles voce ganha                      #",0
+	dific1 byte "#         Dificuldade :                                                        #",0
+	dific2 byte "#                1- Facil                                                      #",0
+	dific3 byte "#                2- Medio                                                      #",0
+	dific4 byte "#                3- Dificil                                                    #",0
 	topo byte "################################################################################",0
 	linha_branca byte "#                                                                              #",0
 	linha0 byte "#      __ __     _ _              _____     _                 _                #",0
@@ -35,10 +41,13 @@ apagaSubmarino PROTO, xy:WORD
 	linha22 byte "#                                `''''''' ``````````| 3 - Para sair      |     #",0
 	linha23 byte "#                                                   +--------------------+     #",0
 	linha24 byte "Comando: ",0
-	NUMERO_DE_OBSTACULOS = 100
+
+	NUMERO_DE_OBSTACULOS = 150
 	BEATLES_RESGATADOS WORD ?
 	vetorDeObstaculos WORD NUMERO_DE_OBSTACULOS DUP(?)
 	vetorDeBeatles WORD 4 DUP(?)
+	nivelDificuldade DWORD 200		   ;// delay do jogo, ou seja, dificuldade
+
 	perdeu1 byte "#                  _|      _|    _|_|      _|_|_|    _|_|                      #",0
 	perdeu2 byte "#                  _|      _|  _|    _|  _|        _|    _|                    #",0
 	perdeu3 byte "#                  _|      _|  _|    _|  _|        _|_|_|_|                    #",0
@@ -94,80 +103,81 @@ apagaSubmarino PROTO, xy:WORD
 .code
 main PROC
 Inicio:
-	mov eax, white+(black*16)
+	mov eax, white+(black*16)          ;// seta cor preto e branco ja que e a primeira cor vista
 	call SetTextColor
-	mov ebx, 0 				;//incializa registradores
+	mov ebx, 0                         ;// seta todos os registradores como 0
 	mov ecx, 0
 	mov esi, 0
 	mov eax, 0
 	mov edx, 0
 	mov esi, 0
-	mov BEATLES_RESGATADOS, 0
+	mov BEATLES_RESGATADOS, 0		   ;// seta Beatles resgatafos como 0
 	call Clrscr						   ;// limpa a tela para inicial o jogo 
-	call desenhaIni
-	call Clrscr
-	.if ebx == 0
-		jmp fim				;//codicao de saida
+	call desenhaIni					   ;// desenha tela de inicio
+	call Clrscr                        ;// limpa tela
+	.if ebx == 0					   ;// ebx == 0 significa que na tele de inicio o usuario pediu para sair
+		jmp fim
 	.endif
-	.if ebx == 1
+	.if ebx == 1                       ;//ebx == 1 significa que na tele de inicio o usuario pediu para ir para a tela de inicio
 		call ajuda
-		jmp Inicio			;//condicao de sai
+		jmp Inicio
 	.endif
 	mov cx, 0000000100000001b		   ;// posicao inicial do Submarino com x = 1 e y = 1
 	push ebx
-	call desenhamapa
+	call dificuldade				   ;// chama funcao que define dificuldade
+	call desenhamapa                   ;// desenha mapa
+	call Randomize                     ;// faz numeros variarem de jogo para jogo
+	call preencheVetor                 ;// preenche vetor de obstaculos ou seja coloca as posicoes dos obstaculos
 	call Randomize
-	call preencheVetor
-	call Randomize
-	call preencheVetorBeatles
-	call desenhaVetorBeatles
-	call desenhaVetorObstaculos
-	;pop ebx
+	call preencheVetorBeatles          ;// preenche vetor de Beatles ou seja coloca as posicoes dos Beatles
+	call desenhaVetorBeatles           ;// desenha o vetor de Beatles
+	call desenhaVetorObstaculos        ;// desenha vetor de obstaculos
+	pop ebx
 	push esi
-L:					;//checa condicoes
+L:									   ;// loop principal
 	
-	.if ebx == 0
-		jmp fim
+	.if ebx == 0					   
+		jmp fim						   ;// se ebx == 0 colidiu entao jogo termina, ou seja vai para fim
 	.endif
-        .if ebx == 2
+        .if ebx == 2                   ;// jogo terminou e usuario ganhou
 		call Clrscr
 		call vitoria
 		jmp Inicio 
 	.endif
-	.if ebx == 3
+	.if ebx == 3                       ;// jogo terminou e usuario perdeu
 		call Clrscr
 		call derrota
 		jmp Inicio
 	.endif
-	invoke apagaSubmarino, cx
-	call ReadKey
+	invoke apagaSubmarino, cx          ;// apaga o submarino da sua posicao atual
+	call ReadKey					   ;// le tecla clicada por usuario
 	pop esi
-	call leTecla			;//le o movimento
-	.IF esi == 1			;//move o submarino
+	call leTecla					   ;// chama procedimento que trata a tacla lida para determinar a movimentacao do submarino
+	.IF esi == 1					   ;// se esi e 1 o submarino sobe
 		sub cl, 1
 	.ENDIF
 
-	.IF esi == 2
+	.IF esi == 2					   ;// se esi e 2 o submarino desce
 		add cl, 1
 	.ENDIF
 
-	.IF esi == 3
+	.IF esi == 3					   ;// se esi e 3 o submarino vai para a esquerda
 		sub ch, 1
 	.ENDIF
 
-	.IF esi == 4
+	.IF esi == 4					   ;// se esi e 4 o submarino vai para a direita
 		add ch, 1
 	.ENDIF
 	push esi
 
-	invoke desenhaSubmarino, cx
-	mov eax, 75
-	call Delay
-	call colisao
+	invoke desenhaSubmarino, cx		   ;// desenha o submarino na nova posicao determinada por ecx
+	mov eax, nivelDificuldade		   ;// move para eax o delay ou seja a dificuldade do jogo e a velocidade do submarino
+	call Delay                         ;// chama procemimento Irvine de Delay
+	call colisao					   ;// verifica colisao
 	jmp L
 	
 fim:
-	mov eax, white + (16*black)	;//encerra o programa
+	mov eax, white + (16*black)
 	call SetTextColor
 	exit
 main ENDP
@@ -179,9 +189,9 @@ desenhaMapa PROC
 	mov dl, 0						   ;// coluna inicial para desenhar a linha de cima do tabuleiro
 	mov dh, 0						   ;// linha inicial para desenhar a linha de cima do tabuleiro
 	mov ecx, 80						   ;// numero de linhas
-	mov eax, lightGreen+(16*Blue)
+	mov eax, lightGreen+(16*Blue)      ;// cor das #, ou seja algas
 	call SetTextColor
-	mov edx, OFFSET topo
+	mov edx, OFFSET topo			   ;// desenha linhas colocando edx no OFFFSET e printando com WriteString
 	call WriteString
 	mov edx, OFFSET linha_branca
 	call WriteString 
@@ -252,143 +262,143 @@ apagaSubmarino PROC, xy:WORD
 apagaSubmarino ENDP
 
 
-leTecla PROC
-.code					;//Le a tecla e guarda o codigo de moviemnto
-	.IF ax == 4B00h
-		mov esi, 1	
+leTecla PROC						   ;// procidimento responsável por ler tecla apertada por usuario
+.code
+	.IF ax == 4B00h					   ;// 4B00h e a tecla UP
+		mov esi, 1					   ;// esi é colocado como 1 para ser tratato na funcao main
 	.ENDIF
 
-	.IF ax == 4D00h
-		mov esi, 2
+	.IF ax == 4D00h					   ;// 4D00h e a tecla UP
+		mov esi, 2					   ;// esi é colocado como 2 para ser tratato na funcao main
 	.ENDIF
 
-	.IF ax == 4800h
+	.IF ax == 4800h					   ;// 4800h e a tecla para esquerda
 		mov esi, 3
 	.ENDIF
 
-	.IF ax == 5000h
+	.IF ax == 5000h					   ;// 5000h e a tecla para direita
 		mov esi, 4
 	.ENDIF
 ret
 leTecla ENDP	
 
-colisao PROC
+colisao PROC						   ;// trata colisao com lado, e com os beatles
 .code
 	
 	push ecx
-	.if ch <=0 || ch >= 30 || cl <=0 || cl >= 79 ;//Se saiu das bordas
-		jmp deuRuim
+	.if ch <=0 || ch >= 30 || cl <=0 || cl >= 79  ;// colisao com o lado
+		jmp deuRuim					   ;// fim de jogo pois colidiu com lado
 	.endif
 
-	mov bx, cx
-	mov ecx, NUMERO_DE_OBSTACULOS
-	mov esi, OFFSET vetorDeObstaculos
+	mov bx, cx						   ;// move cx para bx
+	mov ecx, NUMERO_DE_OBSTACULOS      ;// numero de vezes em que loop e realizado e o tamanho do vetor do numero de obstaculos
+	mov esi, OFFSET vetorDeObstaculos  ;// esi aponta para aonde esta OFFSET de vetordeObstaculos
 L:
-	.IF bx == [esi] ;//Se a posicao bater com um obstaculo
+	.IF bx == [esi]					   ;//se bx que e a posicao do submarino for igual a qualquer posicao dos Obstaculos termina o jogo
 		jmp deuRuim
 	.endif
-	add esi, 2
+	add esi, 2						    ;//proxima posicao
 	loop L
 	
-	mov esi, OFFSET vetorDeBeatles		;//Se a posicao bater com um beatle
+	mov esi, OFFSET vetorDeBeatles
 	mov eax, 0
-	.IF bx == [esi]
+	.IF bx == [esi]				       
 		mov [esi], ax
 		add BEATLES_RESGATADOS, 1
-		call desenhaRingo
+		call desenhaRingo			   ;// desenha embaixo na tela a face de Ringo que foi resgatado
 		jmp fim
 	.ENDIF
 
 	.IF bx == [esi + 2]
 		mov [esi + 2], ax
 		add BEATLES_RESGATADOS, 1
-		call desenhaJohn
+		call desenhaJohn			   ;// desenha embaixo na tela a face de John que foi resgatado
 		jmp fim
 	.ENDIF
 
-	.IF bx == [esi + 4]
+	.IF bx == [esi + 4]				   ;// se colidiu e esta na 3 posicao sei que resgatou o Paul devido as cores em desenhaVetorBeatles
 		mov [esi + 4], ax
-		add BEATLES_RESGATADOS, 1
-		call desenhaPaul
+		add BEATLES_RESGATADOS, 1      ;// incrementa quantidade de beatles regatados
+		call desenhaPaul			   ;// desenha embaixo na tela a face de Paul que foi resgatado
 		jmp fim
 	.ENDIF
 
 	.IF bx == [esi+6]
 		mov [esi+6], ax 
 		add BEATLES_RESGATADOS, 1
-		call desenhaGeorge
+		call desenhaGeorge			   ;// desenha embaixo na tela a face de George que foi resgatado
 		jmp fim
 	.ENDIF
 
-	.IF BEATLES_RESGATADOS == 4	;// se ja colidiu com 4 beatles
+	.IF BEATLES_RESGATADOS == 4		   ;// resgatou os 4 beatles, logo, o usuario ganhou
 		jmp ganhoumiseravi
 	.endif
 	jmp fim
 
 ganhouMiseravi:
-	mov ebx, 2			;// condicao de vitoria
+	mov ebx, 2
 	jmp fim
 
 deuRuim: 
-	mov ebx, 3			;// condicao de derrota
+	mov ebx, 3	
 fim:	
 	pop ecx
 	ret
 colisao ENDP
 
-preencheVetor PROC
-.code 					;//gera vetpr de obstaculos
+preencheVetor PROC					   ;// preenche vetor com obstaculos
+.code 
 	pushad
-	mov eax, 0 ;// seta eax como 0
-	mov ecx, NUMERO_DE_OBSTACULOS
-	mov esi, OFFSET vetorDeObstaculos
+	mov eax, 0						   ;// seta eax como 0
+	mov ecx, NUMERO_DE_OBSTACULOS	   ;// numero de iteracoes e igual a NUMERO_DE_OBSTACULOS
+	mov esi, OFFSET vetorDeObstaculos  ;// esi e setado como endereco do vetor
 EncheVetor:
-	mov eax, 29
-	call RandomRange
-	inc eax
-	mov bh, al
-	mov eax, 78
-	call RandomRange
-	inc eax
-	mov bl, al
-	.if bx == 0000000100000001b
+	mov eax, 29						   ;// intervalo de 0 a 29
+	call RandomRange				   ;// gera numero aleatorio
+	inc eax							   ;// de 1 a 29
+	mov bh, al						   ;// linha a ser colocada na parte mais significativa de bx
+	mov eax, 78						   ;// intervalo da coluna
+	call RandomRange				   ;// gera numero aleatorio de 0 a 78
+	inc eax							   ;// 1 a 78
+	mov bl, al					       ;// coloca numero na parte menos significativa de bl
+	.if bx == 0000000100000001b		   ;// posicao nao pode ser 1, 1 pois e pos inicial do submarino
 		jmp EncheVetor
 	.endif
-	mov [esi], bx
-	add esi, 2
+	mov [esi], bx					   ;// coloca no vetor
+	add esi, 2						   ;// proxima posicao
 	loop EncheVetor
 	popad
 ret
 preencheVetor ENDP
 
-desenhaVetorObstaculos PROC
-.code 						;//Desenha vetor de obstauculos
+desenhaVetorObstaculos PROC			   ;// funcao responsavel por desenhar Vetor de Obstaculos
+.code 
 	pushad
-	mov ecx, NUMERO_DE_OBSTACULOS
-	mov esi, 0
-	mov ebx, OFFSET vetorDeObstaculos
+	mov ecx, NUMERO_DE_OBSTACULOS	   ;// numero de iteracoes e o tamanho do vetor de Obstaculos
+	mov esi, 0						   ;// esi e setado como 0
+	mov ebx, OFFSET vetorDeObstaculos  ;// ebx e colocado no endereco do vetor
 desenha:
-	mov dx, [ebx + esi]
-	call GoToXY
-	mov al, '+'
-	push eax
-	mov eax, 008+(16*Blue)
-	call SetTextColor
-	pop eax
-	call WriteChar
-	add esi, 2
-	loop desenha
+	mov dx, [ebx + esi]				   ;//dx e setado como posicao esi do vetor
+	call GoToXY						   ;// move cursor para posicao ja que dx e dl e dh
+	mov al, '+'						   ;// al recebe char de obstaculo
+	push eax					       ;// coloca eax na pilha
+	mov eax, 008+(16*Blue)			   ;// move eax a cor cinza e fundo azul respectivo a cor da pedra e ao fundo azul
+	call SetTextColor				   ;//seta cor
+	pop eax							   ;// tira eax da pilha
+	call WriteChar					   ;// escreve char
+	add esi, 2					       ;// proxima posicao
+	loop desenha	
 	popad
 ret
 desenhaVetorObstaculos ENDP
 
-preencheVetorBeatles PROC
+preencheVetorBeatles PROC		       ;// preenche vetor dos Beatles, posicao dos Beatles nao pode ser a mesma do Obstaculo
 .code
 	pushad
 	mov eax, 0 
-	mov ecx, 4
-	mov esi, OFFSET vetorDeBeatles	;//Aponta para o vetor
-EncheVetor:
+	mov ecx, 4						   ;// 4 Beatles, logo, vetor de tam = 4
+	mov esi, OFFSET vetorDeBeatles
+EncheVetor:							   ;// coloca posicao no vetor dos Beatles, analogo ao vetor de obstaculos
 	mov eax, 29
 	call RandomRange
 	inc eax
@@ -398,14 +408,14 @@ EncheVetor:
 	inc eax
 	mov bl, al
 	
-	push ecx
-VoltaTudo:	
-	mov ecx, NUMERO_DE_OBSTACULOS
-	mov edx, OFFSET vetorDeObstaculos
+	push ecx					       ;// guarda valor do loop que preenche vetor do Beatle para compara numero aleatorio com vetor de Obstaculos
+VoltaTudo:							   ;// volta tudo significa que o valor aleatorio dos beatles bateu com valor aleatorio dos obstaculos			
+	mov ecx, NUMERO_DE_OBSTACULOS      ;// ecx recebe o numero de obstaculos
+	mov edx, OFFSET vetorDeObstaculos  ;// edx recebe endereco do vetor de obstaculos
 	mov eax, ecx
-ComparaComObstaculos:
-	.IF bx == [edx]	//caso um beatle seja igual a um obstaculo ele deve ser regerado
-		mov eax, 29
+ComparaComObstaculos:				   ;// compara numero aleatorio com o vetor de obstaculos
+	.IF bx == [edx]				       ;// se bx for igual a edx, ou seja se o num aleatorio for igual a posicao de obstaculo
+		mov eax, 29				       ;// gera-se outro numero
 		call RandomRange
 		inc eax
 		mov bh, al
@@ -413,30 +423,30 @@ ComparaComObstaculos:
 		call RandomRange
 		inc eax
 		mov bl, al
-		jmp VoltaTudo
+		jmp VoltaTudo				   ;// volta tudo ja que e necessario comparar novo numero novamente
 	.ELSE
-		add edx, 2
+		add edx, 2					   ;//se e diferente pode comparar com proximo do vetor de obstaculos
 	.ENDIF
 	loop ComparaComObstaculos
-	pop ecx
-	mov [esi], bx
-	add esi, 2
-	loop EncheVetor
+	pop ecx							   ;// ecx volta a ser loop do vetor dos Beatles
+	mov [esi], bx					   ;// se e diferente coloca no bx no vetor de Beatles
+	add esi, 2						   ;// proxima posicao relativo a posicao de Beatle
+	loop EncheVetor					   ;// proximo numero a se testar para colocar no vetor de Beatle, realiza-se 4 vezes
 	popad
 	ret								   
 preencheVetorBeatles ENDP
 
-desenhaVetorBeatles PROC			;//Desenha os personagens no mapa
-.code 
-	pushad
-	mov ebx, OFFSET vetorDeBeatles
-	mov al, 01
-	push eax
-	mov eax, lightMagenta+(16*Blue)
+desenhaVetorBeatles PROC			   ;// funcao responsavel por desenhar vetor de Beatles
+.code								   ;// cada cor de Beatle e relativa ao album sgt. peppers's lonely hearts club band
+	pushad							   
+	mov ebx, OFFSET vetorDeBeatles	   ;// repete-se quatro vezes as acoes:
+	mov al, 01						   ;// move al para 01 que e o char de carinha 
+	push eax                           ;// coloca eax na pilha
+	mov eax, lightMagenta+(16*Blue)    ;// seta cor relativa ao Beatle
 	call SetTextColor
-	pop eax
-	mov dx, [ebx]
-	call GoToXY
+	pop eax                            ;// tira da pilha
+	mov dx, [ebx]					   ;// move para edx para mover cursor
+	call GoToXY                        ;// move cursos
 	call WriteChar
 	push eax
 	mov eax, lightGreen+(16*Blue)
@@ -463,18 +473,18 @@ desenhaVetorBeatles PROC			;//Desenha os personagens no mapa
 ret
 desenhaVetorBeatles ENDP
 
-desenhaPaul PROC			;//Desenha Paul linha a linha
+desenhaPaul PROC				       ;// funcao responsavel por desenhar Paul quando salvo por submarino
 .code
 	pushad
-	call Gotoxy
-	mov eax, white+(16 * lightBlue)
-	call SetTextColor
-	mov dl, 0
-	mov dh, 32
-	call Gotoxy
-	mov edx, OFFSET cabeloPaul
-	call WriteString
-	mov dl, 0
+	call Gotoxy						  ;// vai para x, y
+	mov eax, white+(16 * lightBlue)   ;// seta cor de Paul
+	call SetTextColor                 ;// confirma cor
+	mov dl, 0                         ;// posicao do cabelo de Paul
+	mov dh, 32                       
+	call Gotoxy                       ;// vai para posicao 
+	mov edx, OFFSET cabeloPaul        ;// desenha cabelo
+	call WriteString                  ;// printa cabelo
+	mov dl, 0                         ;// realiza mesmas acoes para olho, nariz, nome e boca do Beatle
 	mov dh, 33
 	call Gotoxy		
 	mov edx, OFFSET olhoPaul
@@ -498,7 +508,7 @@ desenhaPaul PROC			;//Desenha Paul linha a linha
 ret
 desenhaPaul ENDP
 
-desenhaJohn PROC			;//Desenha John linha a linha
+desenhaJohn PROC				       ;// funcao responsavel por desenhar John quando salvo por submarino, analoga a de Paul
 .code
 	pushad
 	mov eax, white+(16 * lightGreen)
@@ -533,8 +543,8 @@ desenhaJohn PROC			;//Desenha John linha a linha
 ret
 desenhaJohn ENDP
 
-desenhaGeorge PROC
-.code					;//Desenha George linha a linha
+desenhaGeorge PROC					    ;// funcao responsavel por desenhar George quando salvo por submarino, analoga a funcao de Paul
+.code
 	pushad
 	mov eax, white+(16 * lightRed)
 	call SetTextColor
@@ -567,8 +577,8 @@ desenhaGeorge PROC
 ret
 desenhaGeorge ENDP
 
-desenhaRingo PROC
-.code						;//Desenha o ringo linha a linha
+desenhaRingo PROC					   ;// funcao responsavel por desenhar Ringo quando salvo por submarino, analoga a funcao de Paul
+.code
 	pushad
 	mov eax, white+(16 * lightMagenta)
 	call SetTextColor
@@ -601,12 +611,12 @@ desenhaRingo PROC
 ret
 desenhaRingo ENDP
 
-desenhaIni PROC
-.code
-	push edx			;//Desenha tela inicial linha a linha
+desenhaIni PROC				           ;//Desenha tela inicial linha a linha
+.code								   ;//Dessa maneira a funcao repete para as 30 linhas: 
+	push edx
 	push eax	
-	mov edx, OFFSET topo
-	call WriteString
+	mov edx, OFFSET topo               ;// move edx para o OFFSET da linha que quer se printar
+	call WriteString                   ;// printa a linha
 	mov edx, OFFSET linha_branca
 	call WriteString
 	mov edx, OFFSET linha_branca
@@ -670,16 +680,16 @@ desenhaIni PROC
 	mov edx, OFFSET linha24
 	call WriteString
 L:
-	call ReadInt			;//Espera em loop ate reconhecer uma entrada valida
-	.if ax == 1
+	call ReadInt			           ;// le comando do usuario para comecar jogo, ver ajuda ou sair
+	.if ax == 1                        ;// 1 começa o jogo
 		mov ebx, 4
 		jmp fim
 	.endif	
-	.if ax == 2
+	.if ax == 2                        ;// 2 vai para a tela de ajuda
 		mov ebx, 1
 		jmp fim
 	.endif
-	.if ax == 3
+	.if ax == 3                        ;// 3 sai do jogo
 		mov ebx, 0
 		jmp fim
 	.endif
@@ -690,12 +700,12 @@ fim:
 	ret
 desenhaIni ENDP
 
-derrota PROC
-.code
+derrota PROC                           ;//Desenha tela de derrota linha a linha
+.code                                  ;//Dessa maneira a funcao repete para as 30 linhas: 
 	push edx
-	mov edx, OFFSET topo		;//Desenha a tela de derrota linha a linha
-	call WriteString
-	mov edx, OFFSET linha_branca
+	mov edx, OFFSET topo               ;// move edx para o OFFSET da linha que quer se printar        
+	call WriteString                   ;// printa a linha
+	mov edx, OFFSET linha_branca 
 	call WriteString
 	call WriteString
 	call WriteString
@@ -745,17 +755,17 @@ derrota PROC
 	mov edx, OFFSET topo
 	call WriteString
 	push eax
-	mov eax, 2000			;//Espera 2000 milisegundos e volta para o menu principal
+	mov eax, 2000				       ;//espera 2000 milisegundos e volta para o menu principal
 	call Delay
 	pop eax
 	pop edx
 	ret
 derrota ENDP
 
-vitoria PROC				;//Desenha tela de vitoria linha a linha
-	push edx
-	mov edx, OFFSET topo
-	call WriteString
+vitoria PROC                           ;//Desenha tela de vitoria linha a linha
+	push edx                           ;//Dessa maneira a funcao repete para as 30 linhas: 
+	mov edx, OFFSET topo               ;// move edx para o OFFSET da linha que quer se printar    
+	call WriteString                   ;// printa a linha
 	mov edx, OFFSET linha_branca
 	call WriteString
 	call WriteString
@@ -804,16 +814,16 @@ vitoria PROC				;//Desenha tela de vitoria linha a linha
 	call WriteString
 	pop edx
 	push eax
-	mov eax, 2000				;//espera 2000 milisegundos e volta para o menu principal
+	mov eax, 2000                      ;//espera 2000 milisegundos e volta para o menu principal
 	call Delay
 	pop eax
 	ret
 vitoria ENDP
 
-ajuda PROC			;//Desenha tela de ajuda linha a linha
-	push edx
-	mov edx, OFFSET topo
-	call WriteString
+ajuda PROC                             ;//Desenha tela de ajuda linha a linha
+	push edx                           ;//Dessa maneira a funcao repete para as 30 linhas: 
+	mov edx, OFFSET topo               ;// move edx para o OFFSET da linha que quer se printar
+	call WriteString                   ;// printa a linha
 	mov edx, OFFSET linha_branca
 	call WriteString
 	call WriteString
@@ -852,10 +862,77 @@ ajuda PROC			;//Desenha tela de ajuda linha a linha
 	call WriteString
 	pop edx
 	push eax
-	mov eax, 5000				;//espera 5000 milisegundos e volta para o menu principal
+	mov eax, 5000				       ;//espera 5000 milisegundos e volta para o menu principal
 	call Delay
 	pop eax
 	ret
 ajuda ENDP
+
+dificuldade PROC				       ;//Desenha tela de dificuldade linha a linha
+	pushad                             ;//Dessa maneira a funcao repete para as 30 linhas: 
+	mov edx, OFFSET topo               ;// move edx para o OFFSET da linha que quer se printar
+	call WriteString                   ;// printa a linha
+	mov edx, OFFSET linha_branca
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	mov edx, OFFSET dific1
+	call WriteString
+	mov edx, OFFSET linha_branca
+	call WriteString
+	mov edx, OFFSET dific2
+	call WriteString
+	mov edx, OFFSET dific3
+	call WriteString
+	mov edx, OFFSET dific4
+	call WriteString
+	mov edx, OFFSET linha_branca
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	call WriteString
+	mov edx, OFFSET topo
+	call WriteString
+	mov edx, OFFSET linha24
+	call WriteString
+	pop edx
+	push eax
+denovo:
+	call readDec					   ;// usuario digita dificuldade
+									   ;// tratamento para definir dificuldade
+	.IF eax == 1                      
+		mov nivelDificuldade, 250
+	.ENDIF
+
+	.IF eax == 2
+		mov nivelDificuldade, 100
+	.ENDIF
+
+	.IF eax == 3
+		mov nivelDificuldade, 75
+	.ENDIF
+
+	.IF eax	> 3 || eax == 0            ;// se numero digitado for maior do que 4 ou 0 a escolha deve ser refeita
+		jmp denovo
+	.ENDIF
+	call Clrscr	
+	popad
+	ret
+dificuldade ENDP
 
 END main
