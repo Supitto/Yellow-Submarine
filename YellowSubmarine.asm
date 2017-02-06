@@ -7,9 +7,9 @@ apagaSubmarino PROTO, xy:WORD
 ;// todas as strings, variaveis e interface grafica do jogo
 .data 
 	ajuda1 byte "#         Ajuda :                                                              #",0
-	ajuda2 byte "#                Utilize as setas do teclado para mover o submarino            #",0
-	ajuda3 byte "#                Se voce tocar na borda (#) ou em um obstaculo (+) voce morre  #",0
-	ajuda4 byte "#                Se voce resgatar os 4 Beatles voce ganha                      #",0
+	ajuda2 byte "#         Utilize as setas do teclado para mover o submarino                   #",0
+	ajuda3 byte "#         Se o submmarino tocar na borda (#) ou em um obstaculo (+) voce morre #",0
+	ajuda4 byte "#         Se o submarino resgatar os 4 Beatles voce ganha                      #",0
 	dific1 byte "#         Dificuldade :                                                        #",0
 	dific2 byte "#                1- Facil                                                      #",0
 	dific3 byte "#                2- Medio                                                      #",0
@@ -37,15 +37,15 @@ apagaSubmarino PROTO, xy:WORD
 	linha18 byte "# ==?$$?????$$$$$$$$$$$$$$$'.:'`.,c' '$' '$' '$'    | Digite e de Enter: |$'   #",0
 	linha19 byte "#         ,,_)$$$$$$$$$$$$F.:'.d$$$, ,$, ,$, ,$, ,$$|                    |'    #",0
 	linha20 byte "#         T''_?$$$$$$$$$$$':: $$$$$$$$$$$$$$$$$$$$$$| 1 - Para jogar     |     #",0
-	linha21 byte "#         `''      `'`       d$$$$$$$$$$$F''''''''''| 2 - Se quer ajuda  |     #",0
+	linha21 byte "#         `''      `'`       d$$$$$$$$$$$F''''''''''| 2 - Jogabilidade   |     #",0
 	linha22 byte "#                                `''''''' ``````````| 3 - Para sair      |     #",0
 	linha23 byte "#                                                   +--------------------+     #",0
 	linha24 byte "Comando: ",0
 
-	NUMERO_DE_OBSTACULOS = 150
-	BEATLES_RESGATADOS WORD ?
-	vetorDeObstaculos WORD NUMERO_DE_OBSTACULOS DUP(?)
-	vetorDeBeatles WORD 4 DUP(?)
+	NUMERO_DE_OBSTACULOS = 150         ;// numero fixo de obstaculos
+	BEATLES_RESGATADOS WORD ?          ;// variavel que guarda a quantidade de Beatles resgatados
+	vetorDeObstaculos WORD NUMERO_DE_OBSTACULOS DUP(?) ;// vetor que guarda posicao dos obstaculos
+	vetorDeBeatles WORD 4 DUP(?)	   ;// vetor que guarda posicao dos Beatles
 	nivelDificuldade DWORD 200		   ;// delay do jogo, ou seja, dificuldade
 
 	perdeu1 byte "#                  _|      _|    _|_|      _|_|_|    _|_|                      #",0
